@@ -46,8 +46,6 @@ shinyUI(fluidPage(
                             condition = "input.feat == 'Length'", selectInput("feat_len", "Which Length: ", c(), multiple = TRUE)),
                           conditionalPanel(
                             condition = "input.feat == 'Double Bonds'", selectInput("feat_db", "Which Double Bonds: ",c(), multiple = TRUE))
-                          
-                          
                         ),
                         checkboxGroupInput("exp_con", "Choose experimental conditions:",
                                            c(#All = 'all',
@@ -56,18 +54,39 @@ shinyUI(fluidPage(
                                              Salt = 'salt',
                                              Methanol = 'met',
                                              Triton = "tri")),
-                        helpText(em("Note: Unselect if you want to delete a experimental condition!")),
+                        helpText(em("Note: Unselect if you want to delete an experimental condition!")),
                         selectInput("select", "Select columns to display.",c(), multiple = TRUE),
                         helpText(em("Note: Use delete button to de-select columns. Make sure you leave class, length and DB column!")),
                         actionButton("update", "Update Data Set", class = "btn-primary",style='padding:4px; font-size:120%')
                     ),
                     box(width = 10, title = "Data", status = "primary",  div(style = 'overflow-x: scroll',  dataTableOutput("contents")), downloadButton("downloadData", "Download")))
         ),
+        
         tabItem( tabName = "plot",
+                 
                  fluidRow(
-                   box(title = "Plot", status = "primary", column(
+                   
+                   box(width = 2, radioButtons("plot_type", "Select Plot Type", c("Lipid Abundance","PCA", "Box Plot","Standard Deviation", "Line Plot"), selected = "Lipid Abundance"),
+                       hr(),
+                       conditionalPanel(
+                         condition = "input.plot_type == 'Standard Deviation'", numericInput("obs", "Set y axes:", 7)),
+                       conditionalPanel(
+                         condition = "input.plot_type == 'Line Plot'", checkboxInput("hg", "Seperate by Head Group Class", FALSE)),
+                       textInput('xlab', 'X axis label', value = "Abundance [mol %]"),
+                       textInput('ylab', 'Y axis label', value = "Lipid Species"),
+                       textInput('plotTitle', 'Plot title', value = ""),
+                       textInput('Legend', 'Legend', value = "Lipid Abundance"),
+                       selectInput('legendposition', label ='Legend Position',
+                                   choices=c("left", "right", "bottom", "top"),
+                                   multiple=FALSE, selectize=TRUE,selected="bottom"),
+                       actionButton("update_plot", "Plot", class = "btn-primary",style='padding:4px; font-size:120%')),
+                   box(
+                     #h1("Experimental conditions:", textOutput("selected_var")),
+                     textOutput("selected_var"),
+                     width = 10, title = "Plot", status = "primary", column(
                      12,
                      plotOutput('plot'),
+                     
                      div(
                        id = "save_plot_area",
                        inline_ui(
@@ -82,9 +101,10 @@ shinyUI(fluidPage(
                          )
                        )
                      )
-                   ))
+                   )) #end box
                    
-                 )),
+                 )
+                 ), #end tabItem
         tabItem( tabName = "export",
                  fluidRow(      conditionalPanel(
                    condition = "!output.saved_plots_exist",
