@@ -517,7 +517,7 @@ shinyServer(function(input, output, session) {
       }
       
     } else if(input$plot_type == "Line Plot"){
-      
+      df[is.na(df)] <- 0
       if (input$feat == "Double Bonds") {
         temp_DB<-df
         if(!input$hg){

@@ -68,8 +68,8 @@ shinyUI(fluidPage(
                    
                    box(width = 2, radioButtons("plot_type", "Select Plot Type", c("Lipid Abundance","PCA", "Box Plot","Standard Deviation", "Line Plot"), selected = "Lipid Abundance"),
                        hr(),
-                       conditionalPanel(
-                         condition = "input.plot_type == 'Standard Deviation'", numericInput("obs", "Set y axes:", 7)),
+                       #conditionalPanel(
+                        # condition = "input.plot_type == 'Standard Deviation'", numericInput("obs", "Set y axes:", 7)),
                        conditionalPanel(
                          condition = "input.plot_type == 'Line Plot'", checkboxInput("hg", "Seperate by Head Group Class", FALSE)),
                        textInput('xlab', 'X axis label', value = "Abundance [mol %]"),
