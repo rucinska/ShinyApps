@@ -1,0 +1,12 @@
+name: ShinyApps
+title: ShinyApps
+username:
+account: saenzlab
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 250315
+bundleId: 1145985
+url: https://saenzlab.shinyapps.io/ShinyApps/
+when: 1513850549.4981
+asMultiple: FALSE
+asStatic: FALSE

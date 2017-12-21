@@ -25,10 +25,15 @@ shinyUI(fluidPage(
     #BODY
     dashboardBody(
       tabItems(
-        tabItem(  tabName = "data",    
+        tabItem(  
+          tabName = "data",    
                   fluidRow( 
-                    box(width = 2, title = "Upload Data",
-                        fileInput('file1', 'Choose CSV File',
+                    box(width = 3, title = "Upload Data",
+                        
+                        fileInput('file1', tags$div(
+                          tags$strong("Choose csv file to upload"),
+                          "or", actionLink("sample_data_btn", "use sample data")
+                        ),
                                   accept=c('text/csv', 
                                            'text/comma-separated-values,text/plain', 
                                            '.csv')),
@@ -46,34 +51,41 @@ shinyUI(fluidPage(
                             condition = "input.feat == 'Length'", selectInput("feat_len", "Which Length: ", c(), multiple = TRUE)),
                           conditionalPanel(
                             condition = "input.feat == 'Double Bonds'", selectInput("feat_db", "Which Double Bonds: ",c(), multiple = TRUE))
-                        ),
+                          ),
+                        
                         checkboxGroupInput("exp_con", "Choose experimental conditions:",
                                            c(#All = 'all',
-                                             GrowthStage ='gs',
-                                             Temparature = 'temp',
-                                             Salt = 'salt',
-                                             Methanol = 'met',
-                                             Triton = "tri")),
+                                             GrowthStage ='Growth Stage',
+                                             Temperature = 'Temperature',
+                                             Salt = 'Salt',
+                                             Methanol = 'Methanol',
+                                             Triton = "Triton")),
                         helpText(em("Note: Unselect if you want to delete an experimental condition!")),
                         selectInput("select", "Select columns to display.",c(), multiple = TRUE),
                         helpText(em("Note: Use delete button to de-select columns. Make sure you leave class, length and DB column!")),
                         actionButton("update", "Update Data Set", class = "btn-primary",style='padding:4px; font-size:120%')
                     ),
-                    box(width = 10, title = "Data", status = "primary",  div(style = 'overflow-x: scroll',  dataTableOutput("contents")), downloadButton("downloadData", "Download")))
+                    box(width = 8, title = "Data", status = "primary",  div(style = 'overflow-x: scroll',  DT::dataTableOutput("contents")), downloadButton("downloadData", "Download")))
         ),
         
         tabItem( tabName = "plot",
                  
                  fluidRow(
                    
-                   box(width = 2, radioButtons("plot_type", "Select Plot Type", c("Lipid Abundance","PCA", "Box Plot","Standard Deviation", "Line Plot"), selected = "Lipid Abundance"),
+                   box(width = 3, radioButtons("plot_type", "Select Plot Type", c("Lipid Abundance", "Box Plot","PCA","Standard Deviation", "Line Plot"), selected = "Lipid Abundance"),
                        hr(),
                        #conditionalPanel(
                         # condition = "input.plot_type == 'Standard Deviation'", numericInput("obs", "Set y axes:", 7)),
                        conditionalPanel(
+                         condition = "input.plot_type == 'Lipid Abundance'", checkboxInput("hg_lipabu", "Seperate by Head Group Class", FALSE)),
+                       conditionalPanel(
                          condition = "input.plot_type == 'Line Plot'", checkboxInput("hg", "Seperate by Head Group Class", FALSE)),
-                       textInput('xlab', 'X axis label', value = "Abundance [mol %]"),
-                       textInput('ylab', 'Y axis label', value = "Lipid Species"),
+                       conditionalPanel(
+                         condition = "input.plot_type == 'Box Plot'", checkboxInput("hg_bx", "Seperate by Head Group Class", FALSE)),
+                       conditionalPanel(
+                         condition = "input.plot_type == 'PCA'", checkboxInput("pca_names", "Hide names", FALSE)),
+                       textInput('xlab', 'X axis label', value = "Lipid Species"),
+                       textInput('ylab', 'Y axis label', value = "Abundance [mol %]"),
                        textInput('plotTitle', 'Plot title', value = ""),
                        textInput('Legend', 'Legend', value = "Lipid Abundance"),
                        selectInput('legendposition', label ='Legend Position',
@@ -83,10 +95,14 @@ shinyUI(fluidPage(
                    box(
                      #h1("Experimental conditions:", textOutput("selected_var")),
                      textOutput("selected_var"),
-                     width = 10, title = "Plot", status = "primary", column(
-                     12,
-                     plotOutput('plot'),
+                     textOutput("selected_feat"),
                      
+                     width = 8, title = "Plot", status = "primary", column(
+                     12,
+                     plotOutput('plot', brush=brushOpts("plot_brush",resetOnNew=T)),
+                     #verbatimTextOutput("brush_info"),
+                     conditionalPanel(
+                       condition = "input.plot_type == 'Lipid Abundance'", wellPanel(width=9,h4("Points selected by brushing:"),dataTableOutput("plot_brushed_points"))),
                      div(
                        id = "save_plot_area",
                        inline_ui(
@@ -119,7 +135,7 @@ shinyUI(fluidPage(
                        div(
                          id = "exporting_plots_options",
                          selectInput("export_file_type", "File type",
-                                     c("PDF" = "pdf", "JPEG" = "jpeg", "PNG" = "png", "EPS" = "eps")),
+                                     c("PDF" = "pdf", "JPEG" = "jpeg", "PNG" = "png")),
                          conditionalPanel(
                            condition = "input.export_file_type == 'pdf'",
                            selectInput("export_pdf_orientation", "Page orientation",
